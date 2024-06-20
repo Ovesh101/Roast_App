@@ -28,7 +28,7 @@ passport.deserializeUser((obj, done) => done(null, obj));
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET_KEY,
-    callbackURL: 'http://localhost:3000/auth/google/callback'
+    callbackURL: 'https://roast-app.onrender.com/auth/google/callback'
     // callbackURL: "https://github-roast.up.railway.app/auth/github/callback"
 }, (accessToken, refreshToken, profile, done) => done(null, profile)));
 
