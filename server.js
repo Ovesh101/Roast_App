@@ -2,7 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const passport = require('passport');
-const GitHubStrategy = require('passport-github').Strategy;
+// const GitHubStrategy = require('passport-github').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 const path = require('path');
 const OpenAI = require('openai');
@@ -10,6 +11,8 @@ const OpenAI = require('openai');
 const app = express();
 app.use(express.json());
 app.use(express.static('public'));
+
+
 app.use(session({
     secret: 'replace_this_with_a_secure_secret',
     resave: false,
@@ -18,20 +21,27 @@ app.use(session({
 
 // Passport setup
 passport.serializeUser((user, done) => done(null, user));
+
 passport.deserializeUser((obj, done) => done(null, obj));
 
-passport.use(new GitHubStrategy({
-    clientID: process.env.GITHUB_CLIENT_ID,
-    clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    callbackURL: "https://github-roast.up.railway.app/auth/github/callback"
+
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET_KEY,
+    callbackURL: 'http://localhost:3000/auth/google/callback'
+    // callbackURL: "https://github-roast.up.railway.app/auth/github/callback"
 }, (accessToken, refreshToken, profile, done) => done(null, profile)));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
+
+
+
 // Route to serve the login page
 app.get('/', (req, res) => {
     if (req.isAuthenticated()) {
+        console.log("User" , req.user);
         res.redirect('/home');
     } else {
         res.sendFile(path.join(__dirname, 'public', 'login.html'));
@@ -39,16 +49,19 @@ app.get('/', (req, res) => {
 });
 
 // Route to handle GitHub authentication
-app.get('/auth/github', passport.authenticate('github'));
+app.get('/auth/google',  passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 // GitHub callback route
-app.get('/auth/github/callback', 
-    passport.authenticate('github', { failureRedirect: '/' }),
+app.get('/auth/google/callback', 
+    passport.authenticate('google', { failureRedirect: '/' }),
     (req, res) => res.redirect('/home'));
+
+
 
 // Protected route to serve the homepage after login
 app.get('/home', (req, res) => {
     if (req.isAuthenticated()) {
+        console.log("at homeUser" , req.user);
         res.sendFile(path.join(__dirname, 'public', 'home.html'));
     } else {
         res.redirect('/');
