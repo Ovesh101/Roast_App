@@ -29,6 +29,8 @@ passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET_KEY,
     callbackURL: 'https://roast-app.onrender.com/auth/google/callback'
+    // callbackURL: 'http://localhost:3000/auth/google/callback'
+    
     // callbackURL: "https://github-roast.up.railway.app/auth/github/callback"
 }, (accessToken, refreshToken, profile, done) => done(null, profile)));
 
@@ -82,7 +84,7 @@ app.get('/roast/:username', async (req, res) => {
         if (!profileData) return res.status(404).json({ error: "GitHub user not found" });
 
         const messages = [
-            { role: "system", content: "You are a witty assistant asked to create a funny but must be hard roast." },
+            { role: "system", content: "You are a witty assistant asked to create a funny  roast." },
             { role: "user", content: `Tell me a roast about a GitHub user named ${profileData.name || username} who has ${profileData.public_repos} repositories and ${profileData.followers} followers.` },
         ];
 
